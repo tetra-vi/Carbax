@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.angular/
+*.log
+.env
+.env.*
+!.env.example
+e2e/shots/
+e2e/files/
+.firebase/
+firebase-debug.log

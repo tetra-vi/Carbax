@@ -1,0 +1,10 @@
+rules_version = '2';
+// Uploaded evidence and generated reports are private. Only the backend service account (IAM) can
+// access the bucket; users download files through the authorised API.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

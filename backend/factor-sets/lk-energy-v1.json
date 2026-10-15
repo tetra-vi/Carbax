@@ -1,0 +1,19 @@
+{
+  "id": "lk-energy-v1",
+  "version": "1.0.0",
+  "name": "Sri Lanka energy factors (demonstration scope)",
+  "status": "ACTIVE",
+  "electricity": {
+    "country": "LK",
+    "kgCo2ePerKWh": 0.4173,
+    "source": "Sri Lanka Sustainable Energy Authority, Sri Lanka Energy Balance 2022, Section 9.1, Table 9.1 — Average Emission Factor",
+    "year": 2022
+  },
+  "diesel": {
+    "co2KgPerTJ": 74100,
+    "ncvTJPerGg": 43.0,
+    "densityKgPerL": 0.84,
+    "source": "IPCC 2006 Guidelines for National GHG Inventories, Vol. 2 (Energy), Ch.1 Tables 1.2 and 1.4: gas/diesel oil default CO2 emission factor 74,100 kg/TJ and NCV 43.0 TJ/Gg. Density 0.84 kg/L is an assumed typical value; replace with the supplier's specification where available."
+  },
+  "notes": "REQUIRED BEFORE USE: set electricity.kgCo2ePerKWh, electricity.source and electricity.year from an official, citable source for the national grid (e.g. the national energy authority or utility's published grid emission factor). Calculations are refused until this is configured. Never use an AI-generated value."
+}

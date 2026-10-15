@@ -1,0 +1,50 @@
+{
+  "name": "complybridge-backend",
+  "version": "3.0.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "node --env-file=.env --import tsx --watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "harness": "tsx test/ui-harness.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@google-cloud/documentai": "^10.2.0",
+    "@google-cloud/speech": "^8.2.0",
+    "@google-cloud/storage": "^8.4.0",
+    "@google-cloud/tasks": "^7.3.0",
+    "@google-cloud/text-to-speech": "^7.2.0",
+    "@google-cloud/translate": "^10.3.0",
+    "@google/genai": "^2.29.1",
+    "cors": "^2.8.6",
+    "decimal.js": "^10.6.0",
+    "exceljs": "^4.4.0",
+    "express": "^4.22.3",
+    "express-rate-limit": "^8.7.1",
+    "firebase-admin": "^14.5.0",
+    "google-auth-library": "^11.3.0",
+    "helmet": "^8.3.0",
+    "multer": "^2.4.0",
+    "pdfkit": "^0.20.2",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^4.17.25",
+    "@types/multer": "^2.3.0",
+    "@types/node": "^26.6.5",
+    "@types/pdfkit": "^0.17.6",
+    "@types/supertest": "^7.2.1",
+    "supertest": "^7.3.1",
+    "tsx": "^4.23.15",
+    "typescript": "5.9",
+    "vitest": "^3.2.7"
+  }
+}
