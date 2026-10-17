@@ -1,10 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { Api } from '../core/api.service';
 import { I18n, TPipe } from '../core/i18n.service';
 import { Notify, SpeakButton } from '../shared/ui';
@@ -15,10 +16,15 @@ interface Msg { from: 'me' | 'ai'; text: string }
 @Component({
   selector: 'cb-voicemate',
   standalone: true,
-  imports: [FormsModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatProgressBarModule, TPipe, SpeakButton],
+  imports: [FormsModule, MatButtonModule, MatIconModule, MatFormFieldModule, MatInputModule, MatProgressBarModule, MatTooltipModule, TPipe, SpeakButton],
   template: `
     <section class="voicemate" aria-labelledby="vm-title">
-      <h2 id="vm-title"><mat-icon aria-hidden="true">support_agent</mat-icon> {{ 'voice.title' | t }}</h2>
+      <div class="vm-header">
+        <h2 id="vm-title"><mat-icon aria-hidden="true">support_agent</mat-icon> {{ 'voice.title' | t }}</h2>
+        <button mat-icon-button type="button" (click)="close.emit()" [matTooltip]="'common.closeDrawer' | t" [attr.aria-label]="'common.closeDrawer' | t">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
       <p class="muted small">{{ 'voice.intro' | t }}</p>
       <div class="vm-log" aria-live="polite">
         @for (m of log(); track $index) {
@@ -46,6 +52,7 @@ interface Msg { from: 'me' | 'ai'; text: string }
     </section>`,
 })
 export class VoiceMate {
+  readonly close = output<void>();
   private api = inject(Api);
   private i18n = inject(I18n);
   private notify = inject(Notify);

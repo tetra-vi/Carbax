@@ -200,7 +200,7 @@ async function readReportFile(deps: Deps, r: Report, format: 'pdf' | 'csv' | 'xl
   const path = format === 'pdf' ? r.pdfPath : format === 'csv' ? r.csvPath : r.xlsxPath;
   if (!path) throw notFound('Report file');
   const contentType = format === 'pdf' ? 'application/pdf' : format === 'csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-  return { data: await deps.files.read(path), contentType, fileName: `complybridge-${r.periodKey}-v${r.version}-${r.status.toLowerCase()}.${format}` };
+  return { data: await deps.files.read(path), contentType, fileName: `ecuraa-${r.periodKey}-v${r.version}-${r.status.toLowerCase()}.${format}` };
 }
 
 // ---------- Buyer sharing ----------

@@ -25,7 +25,7 @@ const LangSwitch = () => {
   standalone: true,
   imports: [RouterLink, MatButtonModule, MatIconModule, MatCardModule, TPipe],
   template: ` <header class="public-top">
-      <span class="brand"><mat-icon aria-hidden="true">eco</mat-icon> ComplyBridge AI</span>
+      <a routerLink="/" class="brand" aria-label="Ecuraa"><img src="/logo.png" alt="Ecuraa" class="brand-logo" /></a>
       <span class="spacer"></span>
       @for (l of languages; track l.code) {
         <button mat-button (click)="i18n.use(l.code)">{{ l.label }}</button>
@@ -45,8 +45,8 @@ const LangSwitch = () => {
           <mat-card appearance="outlined"
             ><mat-card-content>
               <mat-icon class="feature-icon" aria-hidden="true">{{ f.icon }}</mat-icon>
-              <h2>{{ f.key + '.title' | t }}</h2>
-              <p>{{ f.key + '.body' | t }}</p>
+              <h2>{{ (f.key + '.title') | t }}</h2>
+              <p>{{ (f.key + '.body') | t }}</p>
             </mat-card-content></mat-card
           >
         }
@@ -97,27 +97,49 @@ export class Landing {
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatIconModule,
     MatProgressBarModule,
     TPipe,
   ],
   template: ` <main class="auth-page" id="main">
     <mat-card appearance="outlined" class="auth-card"
       ><mat-card-content>
+        <div class="auth-logo-wrap"><a routerLink="/" aria-label="Ecuraa"><img src="/logo.png" alt="Ecuraa" class="auth-logo" /></a></div>
         <h1>{{ 'auth.login' | t }}</h1>
         <form [formGroup]="form" (ngSubmit)="submit()">
           <mat-form-field appearance="outline"
             ><mat-label>{{ 'auth.email' | t }}</mat-label
-            ><input matInput type="email" formControlName="email" autocomplete="email" required
-          /></mat-form-field>
+            ><input matInput type="email" formControlName="email" autocomplete="email" required />
+            @if (form.controls.email.hasError('required') && form.controls.email.touched) {
+              <mat-error>{{ 'validation.required' | t }}</mat-error>
+            }
+            @if (form.controls.email.hasError('email') && form.controls.email.touched) {
+              <mat-error>{{ 'validation.email' | t }}</mat-error>
+            }
+          </mat-form-field>
           <mat-form-field appearance="outline"
             ><mat-label>{{ 'auth.password' | t }}</mat-label
             ><input
               matInput
-              type="password"
+              [type]="hidePassword() ? 'password' : 'text'"
               formControlName="password"
               autocomplete="current-password"
               required
-          /></mat-form-field>
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="hidePassword.set(!hidePassword())"
+              [attr.aria-label]="(hidePassword() ? 'auth.showPassword' : 'auth.hidePassword') | t"
+              tabindex="-1"
+            >
+              <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+            </button>
+            @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+              <mat-error>{{ 'validation.required' | t }}</mat-error>
+            }
+          </mat-form-field>
           @if (busy()) {
             <mat-progress-bar mode="indeterminate" />
           }
@@ -139,6 +161,7 @@ export class Login {
   private router = inject(Router);
   private notify = inject(Notify);
   busy = signal(false);
+  hidePassword = signal(true);
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
@@ -167,33 +190,60 @@ export class Login {
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
+    MatIconModule,
     MatProgressBarModule,
     TPipe,
   ],
   template: ` <main class="auth-page" id="main">
     <mat-card appearance="outlined" class="auth-card"
       ><mat-card-content>
+        <div class="auth-logo-wrap"><a routerLink="/" aria-label="Ecuraa"><img src="/logo.png" alt="Ecuraa" class="auth-logo" /></a></div>
         <h1>{{ 'auth.createAccount' | t }}</h1>
         <form [formGroup]="form" (ngSubmit)="submit()">
           <mat-form-field appearance="outline"
             ><mat-label>{{ 'auth.name' | t }}</mat-label
-            ><input matInput formControlName="name" autocomplete="name" required
-          /></mat-form-field>
+            ><input matInput formControlName="name" autocomplete="name" required />
+            @if (form.controls.name.hasError('required') && form.controls.name.touched) {
+              <mat-error>{{ 'validation.required' | t }}</mat-error>
+            }
+          </mat-form-field>
           <mat-form-field appearance="outline"
             ><mat-label>{{ 'auth.email' | t }}</mat-label
-            ><input matInput type="email" formControlName="email" autocomplete="email" required
-          /></mat-form-field>
+            ><input matInput type="email" formControlName="email" autocomplete="email" required />
+            @if (form.controls.email.hasError('required') && form.controls.email.touched) {
+              <mat-error>{{ 'validation.required' | t }}</mat-error>
+            }
+            @if (form.controls.email.hasError('email') && form.controls.email.touched) {
+              <mat-error>{{ 'validation.email' | t }}</mat-error>
+            }
+          </mat-form-field>
           <mat-form-field appearance="outline"
             ><mat-label>{{ 'auth.password' | t }}</mat-label
             ><input
               matInput
-              type="password"
+              [type]="hidePassword() ? 'password' : 'text'"
               formControlName="password"
               autocomplete="new-password"
               required
             />
-            <mat-hint>{{ 'auth.passwordHint' | t }}</mat-hint></mat-form-field
-          >
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="hidePassword.set(!hidePassword())"
+              [attr.aria-label]="(hidePassword() ? 'auth.showPassword' : 'auth.hidePassword') | t"
+              tabindex="-1"
+            >
+              <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+            </button>
+            <mat-hint>{{ 'auth.passwordHint' | t }}</mat-hint>
+            @if (form.controls.password.hasError('required') && form.controls.password.touched) {
+              <mat-error>{{ 'validation.required' | t }}</mat-error>
+            }
+            @if (form.controls.password.hasError('minlength') && form.controls.password.touched) {
+              <mat-error>{{ 'validation.minlength' | t: { min: 8 } }}</mat-error>
+            }
+          </mat-form-field>
           @if (busy()) {
             <mat-progress-bar mode="indeterminate" />
           }
@@ -214,6 +264,7 @@ export class Register {
   private router = inject(Router);
   private notify = inject(Notify);
   busy = signal(false);
+  hidePassword = signal(true);
   form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
@@ -250,6 +301,7 @@ export class Register {
   template: ` <main class="auth-page" id="main">
     <mat-card appearance="outlined" class="auth-card"
       ><mat-card-content>
+        <div class="auth-logo-wrap"><a routerLink="/" aria-label="Ecuraa"><img src="/logo.png" alt="Ecuraa" class="auth-logo" /></a></div>
         <h1>{{ 'auth.forgot' | t }}</h1>
         <mat-form-field appearance="outline"
           ><mat-label>{{ 'auth.email' | t }}</mat-label
@@ -299,22 +351,25 @@ export class ResetPassword {
   template: ` <main class="auth-page" id="main">
     <mat-card appearance="outlined" class="auth-card wide"
       ><mat-card-content>
+        <div class="auth-logo-wrap"><a routerLink="/" aria-label="Ecuraa"><img src="/logo.png" alt="Ecuraa" class="auth-logo" /></a></div>
         <h1>{{ 'onboarding.title' | t }}</h1>
         <p class="muted">{{ 'onboarding.intro' | t }}</p>
         @if (auth.user() && !auth.user()?.emailVerified) {
           <div class="notice" role="status">
-            <p>Please verify your email address.</p>
-            <button
-              mat-stroked-button
-              type="button"
-              (click)="sendVerification()"
-              [disabled]="busy()"
-            >
-              Send verification email
-            </button>
-            <button mat-button type="button" (click)="checkVerification()" [disabled]="busy()">
-              I've verified my email
-            </button>
+            <p>{{ 'auth.verifyEmailPrompt' | t }}</p>
+            <div class="row">
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="sendVerification()"
+                [disabled]="busy()"
+              >
+                {{ 'auth.sendVerification' | t }}
+              </button>
+              <button mat-button type="button" (click)="checkVerification()" [disabled]="busy()">
+                {{ 'auth.checkVerification' | t }}
+              </button>
+            </div>
           </div>
         }
         <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
@@ -376,6 +431,7 @@ export class Onboarding {
   private session = inject(Session);
   private router = inject(Router);
   private notify = inject(Notify);
+  private i18n = inject(I18n);
   readonly auth = inject(AuthService);
   languages = UI_LANGUAGES.filter((l) => l.available);
   busy = signal(false);
@@ -397,7 +453,7 @@ export class Onboarding {
     this.busy.set(true);
     try {
       await this.auth.sendVerificationEmail();
-      alert('Verification email sent. Check your inbox and spam folder.');
+      this.notify.ok('auth.verificationSent');
     } catch (e) {
       this.notify.error(e);
     } finally {
@@ -410,9 +466,9 @@ export class Onboarding {
     try {
       const verified = await this.auth.checkEmailVerification();
       if (verified) {
-        alert('Email verified. Please sign out and sign in again to refresh your access.');
+        this.notify.ok('auth.verificationSuccess');
       } else {
-        alert('Email not verified yet. Open the link in your verification email first.');
+        this.notify.error(new Error(this.i18n.t('auth.verificationPending')));
       }
     } catch (e) {
       this.notify.error(e);
@@ -460,7 +516,7 @@ export class Onboarding {
         @if (info(); as i) {
           <h1>{{ 'invite.title' | t: { org: i.organizationName } }}</h1>
           <p>
-            {{ 'invite.role' | t }}: <strong>{{ 'role.' + i.role | t }}</strong> · {{ i.email }}
+            {{ 'invite.role' | t }}: <strong>{{ ('role.' + i.role) | t }}</strong> · {{ i.email }}
           </p>
           @if (i.expired || i.accepted) {
             <p class="notice error">{{ (i.expired ? 'invite.expired' : 'invite.used') | t }}</p>
@@ -580,7 +636,7 @@ interface SharedView {
     StatusChip,
   ],
   template: ` <header class="public-top">
-      <span class="brand"><mat-icon>eco</mat-icon> ComplyBridge AI · {{ 'buyer.portal' | t }}</span>
+      <span class="brand"><img src="/logo.png" alt="Ecuraa" class="brand-logo" /> <span class="brand-sub">· {{ 'buyer.portal' | t }}</span></span>
     </header>
     <main class="page" id="main">
       @if (error()) {

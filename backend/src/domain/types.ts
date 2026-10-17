@@ -4,7 +4,7 @@
 export const ROLES = ['OWNER', 'WORKER', 'REVIEWER', 'BUYER'] as const;
 export type Role = (typeof ROLES)[number];
 
-export const LANGUAGES = ['en', 'ta', 'si', 'hi', 'id', 'vi', 'th', 'ms'] as const;
+export const LANGUAGES = ['en', 'ta', 'fr', 'si', 'hi', 'id', 'vi', 'th', 'ms'] as const;
 export type Language = (typeof LANGUAGES)[number];
 
 export type PlanId = 'TRIAL' | 'STARTER' | 'GROWTH' | 'BUSINESS' | 'BUYER_NETWORK';

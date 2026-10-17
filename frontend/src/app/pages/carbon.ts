@@ -13,7 +13,7 @@ import { Api } from '../core/api.service';
 import { I18n, TPipe } from '../core/i18n.service';
 import { Session } from '../core/session.service';
 import type { Action, Calculation, DocumentRecord, Measurement, Member, Readiness, Report, Scenario, Share } from '../core/models';
-import { Notify, PeriodPicker, StatusChip } from '../shared/ui';
+import { DialogService, Notify, PeriodPicker, StatusChip } from '../shared/ui';
 
 /** Calculation results with full source-to-number lineage. */
 @Component({
@@ -22,7 +22,8 @@ import { Notify, PeriodPicker, StatusChip } from '../shared/ui';
   imports: [DatePipe, DecimalPipe, MatCardModule, MatButtonModule, MatIconModule, MatProgressBarModule, TPipe, StatusChip, PeriodPicker],
   template: `
     <div class="page-head"><h1>{{ 'results.title' | t }}</h1><cb-period-picker /></div>
-    <button mat-flat-button (click)="run()" [disabled]="busy()"><mat-icon>calculate</mat-icon> {{ 'results.run' | t }}</button>
+    <button mat-flat-button (click)="run()" [disabled]="busy() || !s.periodId()"><mat-icon>calculate</mat-icon> {{ 'results.run' | t }}</button>
+    @if (!s.periodId()) { <p class="notice warn"><mat-icon aria-hidden="true">info</mat-icon> {{ 'documents.choosePeriod' | t }}</p> }
     @if (busy()) { <mat-progress-bar mode="indeterminate" /> }
     @if (calc(); as c) {
       <div class="kpis">
@@ -60,6 +61,7 @@ export class ResultsPage {
   s = inject(Session);
   private api = inject(Api);
   private notify = inject(Notify);
+private dialogs = inject(DialogService);
   calc = signal<Calculation | null>(null);
   measurements = signal<Measurement[]>([]);
   docs = signal<DocumentRecord[]>([]);
@@ -84,6 +86,7 @@ export class ResultsPage {
     return this.docs().find((d) => d.id === id)?.fileName ?? id;
   }
   async run() {
+    if (!this.s.periodId()) return;
     this.busy.set(true);
     try {
       const c = await this.api.post<Calculation>('/calculations/run', { periodId: this.s.periodId() });
@@ -117,7 +120,8 @@ export class ResultsPage {
           <mat-form-field appearance="outline"><mat-label>{{ 'twin.elecPrice' | t }}</mat-label><input matInput type="number" min="0" [(ngModel)]="elecPrice" /></mat-form-field>
           <mat-form-field appearance="outline"><mat-label>{{ 'twin.currency' | t }}</mat-label><input matInput maxlength="8" [(ngModel)]="currency" /></mat-form-field>
         </div>
-        <button mat-flat-button (click)="simulate()" [disabled]="busy()"><mat-icon>play_arrow</mat-icon> {{ 'twin.simulate' | t }}</button>
+        <button mat-flat-button (click)="simulate()" [disabled]="busy() || !s.periodId()"><mat-icon>play_arrow</mat-icon> {{ 'twin.simulate' | t }}</button>
+        @if (!s.periodId()) { <p class="notice warn"><mat-icon aria-hidden="true">info</mat-icon> {{ 'documents.choosePeriod' | t }}</p> }
         @if (busy()) { <mat-progress-bar mode="indeterminate" /> }
       </mat-card-content></mat-card>
       <mat-card appearance="outlined"><mat-card-content>
@@ -187,6 +191,7 @@ export class TwinPage {
     }
   }
   async simulate() {
+    if (!this.s.periodId()) return;
     this.busy.set(true);
     try {
       const sc = await this.api.post<Scenario>('/scenarios', {
@@ -269,14 +274,15 @@ export class ActionsPage {
     <div class="page-head"><h1>{{ 'compliance.title' | t }}</h1><cb-period-picker /></div>
     <mat-card appearance="outlined"><mat-card-content>
       <h2>{{ 'readiness.title' | t }} @if (readiness(); as r) { <cb-status [value]="r.status" /> }</h2>
-      <button mat-stroked-button (click)="check()" [disabled]="busy()"><mat-icon>fact_check</mat-icon> {{ 'readiness.check' | t }}</button>
+      <button mat-stroked-button (click)="check()" [disabled]="busy() || !s.periodId()"><mat-icon>fact_check</mat-icon> {{ 'readiness.check' | t }}</button>
+      @if (!s.periodId()) { <p class="notice warn"><mat-icon aria-hidden="true">info</mat-icon> {{ 'documents.choosePeriod' | t }}</p> }
       @if (busy()) { <mat-progress-bar mode="indeterminate" /> }
       @if (readiness(); as r) {
         <ul class="checklist">@for (c of r.checks; track c.id) { <li><mat-icon [class.good]="c.passed">{{ c.passed ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon> <strong>{{ c.label }}</strong> — <span class="muted">{{ c.detail }}</span></li> }</ul>
         @if (r.summary) { <p class="ai-box">{{ r.summary }} <span class="ai-label">{{ 'common.aiGenerated' | t }}</span></p> }
       }
       <p class="notice">{{ 'compliance.disclaimer' | t }}</p>
-      <button mat-flat-button (click)="generate()" [disabled]="busy()"><mat-icon>description</mat-icon> {{ 'compliance.generate' | t }}</button>
+      <button mat-flat-button (click)="generate()" [disabled]="busy() || !s.periodId()"><mat-icon>description</mat-icon> {{ 'compliance.generate' | t }}</button>
     </mat-card-content></mat-card>
     @for (r of reports(); track r.id) {
       <mat-card appearance="outlined"><mat-card-content>
@@ -317,6 +323,7 @@ export class CompliancePage {
   s = inject(Session);
   private api = inject(Api);
   private notify = inject(Notify);
+private dialogs = inject(DialogService);
   private i18n = inject(I18n);
   readiness = signal<Readiness | null>(null);
   reports = signal<Report[]>([]);
@@ -345,15 +352,17 @@ export class CompliancePage {
     }
   }
   async check() {
+    if (!this.s.periodId()) return;
     this.busy.set(true);
     try { this.readiness.set(await this.api.get<Readiness>(`/reporting-periods/${this.s.periodId()}/readiness`)); } catch (e) { this.notify.error(e); } finally { this.busy.set(false); }
   }
   async generate() {
+    if (!this.s.periodId()) return;
     this.busy.set(true);
     try { await this.api.post('/reports/generate', { periodId: this.s.periodId() }); this.notify.ok('compliance.generated'); await this.load(); } catch (e) { this.notify.error(e); } finally { this.busy.set(false); }
   }
   download(r: Report, f: string) {
-    void this.api.download(`/reports/${r.id}/download`, `complybridge-${r.periodKey}-v${r.version}.${f}`, { format: f }).catch((e) => this.notify.error(e));
+    void this.api.download(`/reports/${r.id}/download`, `ecuraa-${r.periodKey}-v${r.version}.${f}`, { format: f }).catch((e) => this.notify.error(e));
   }
   async review(r: Report, d: 'approve' | 'reject') {
     try {
@@ -375,7 +384,7 @@ export class CompliancePage {
     }
   }
   async revoke(r: Report, sh: Share) {
-    if (!confirm(this.i18n.t('share.revokeConfirm', { name: sh.buyerName }))) return;
+    if (!await this.dialogs.confirm(this.i18n.t('share.revokeConfirm', { name: sh.buyerName }))) return;
     try { await this.api.post(`/shares/${sh.id}/revoke`); await this.load(); } catch (e) { this.notify.error(e); }
   }
 }

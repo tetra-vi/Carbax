@@ -1,11 +1,15 @@
 import { Component, Injectable, computed, inject, input, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatDialog, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { firstValueFrom } from 'rxjs';
 import { Api, ApiError } from '../core/api.service';
 import { I18n, TPipe } from '../core/i18n.service';
 import { Session } from '../core/session.service';
@@ -35,8 +39,8 @@ export class StatusChip {
   readonly value = input.required<string>();
   readonly tone = computed(() => {
     const v = this.value();
-    if (['RESOLVED', 'CONFIRMED', 'APPROVED', 'COMPLETE', 'READY_FOR_REVIEW', 'READY_FOR_HUMAN_REVIEW', 'APPROVED_FOR_SHARING', 'SUCCEEDED', 'COMPLETED', 'ACTIVE', 'CLOSED'].includes(v)) return 'good';
-    if (['FAILED', 'REJECTED', 'HIGH', 'MISSING_EVIDENCE', 'INCONSISTENT_DATA', 'NEEDS_CORRECTION', 'DECLINED', 'SUSPENDED'].includes(v)) return 'bad';
+    if (['RESOLVED', 'CONFIRMED', 'APPROVED', 'COMPLETE', 'READY_FOR_REVIEW', 'READY_FOR_HUMAN_REVIEW', 'APPROVED_FOR_SHARING', 'SUCCEEDED', 'COMPLETED', 'ACTIVE', 'CLOSED', 'LOW'].includes(v)) return 'good';
+    if (['FAILED', 'REJECTED', 'HIGH', 'MISSING_EVIDENCE', 'INCONSISTENT_DATA', 'NEEDS_CORRECTION', 'DECLINED', 'SUSPENDED', 'REVOKED', 'CANCELLED'].includes(v)) return 'bad';
     if (['PROCESSING', 'QUEUED', 'REVALIDATING', 'SUBMITTED', 'IN_PROGRESS', 'RUNNING'].includes(v)) return 'busy';
     return 'warn';
   });
@@ -77,7 +81,7 @@ export interface ChartPoint { label: string; value: number | null }
   imports: [DecimalPipe, TPipe],
   template: `
     <figure class="chart">
-      <figcaption>{{ title() }} <span class="muted">({{ unit() }})</span></figcaption>
+      <figcaption><span>{{ title() }}</span> <span class="unit-badge">{{ unit() }}</span></figcaption>
       <svg [attr.viewBox]="'0 0 ' + width + ' 160'" role="img" [attr.aria-label]="title()">
         <line x1="32" y1="130" [attr.x2]="width - 8" y2="130" class="axis" />
         @for (p of points(); track p.label; let i = $index) {
@@ -115,6 +119,92 @@ export class BarChart {
   }
 }
 
+export interface ConfirmDialogData {
+  title?: string;
+  message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  isDestructive?: boolean;
+}
+
+@Component({
+  selector: 'cb-confirm-dialog',
+  standalone: true,
+  imports: [MatDialogModule, MatButtonModule, TPipe],
+  template: `
+    <h2 mat-dialog-title class="cb-dialog-title">{{ data.title || ('common.confirm' | t) }}</h2>
+    <mat-dialog-content class="cb-dialog-content">
+      <p class="dialog-paragraph">{{ data.message }}</p>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end" class="dialog-actions">
+      <button mat-button [mat-dialog-close]="false">{{ data.cancelLabel || ('common.cancel' | t) }}</button>
+      <button mat-flat-button [color]="data.isDestructive ? 'warn' : 'primary'" [mat-dialog-close]="true">
+        {{ data.confirmLabel || ('common.confirm' | t) }}
+      </button>
+    </mat-dialog-actions>
+  `,
+})
+export class ConfirmDialog {
+  data: ConfirmDialogData = inject(MAT_DIALOG_DATA);
+}
+
+export interface PromptDialogData {
+  title?: string;
+  message: string;
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  confirmLabel?: string;
+  cancelLabel?: string;
+}
+
+@Component({
+  selector: 'cb-prompt-dialog',
+  standalone: true,
+  imports: [FormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, TPipe],
+  template: `
+    <h2 mat-dialog-title class="cb-dialog-title">{{ data.title || ('common.confirm' | t) }}</h2>
+    <mat-dialog-content class="cb-dialog-content">
+      <p class="dialog-paragraph">{{ data.message }}</p>
+      <mat-form-field appearance="outline" class="dialog-form-field" subscriptSizing="dynamic">
+        <mat-label>{{ data.label || ('common.reason' | t) }}</mat-label>
+        <textarea matInput [(ngModel)]="value" [placeholder]="data.placeholder || ''" rows="3"></textarea>
+      </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end" class="dialog-actions">
+      <button mat-button [mat-dialog-close]="null">{{ data.cancelLabel || ('common.cancel' | t) }}</button>
+      <button mat-flat-button color="primary" [mat-dialog-close]="value.trim()" [disabled]="data.required && !value.trim()">
+        {{ data.confirmLabel || ('common.submit' | t) }}
+      </button>
+    </mat-dialog-actions>
+  `,
+})
+export class PromptDialog {
+  data: PromptDialogData = inject(MAT_DIALOG_DATA);
+  value = '';
+}
+
+@Injectable({ providedIn: 'root' })
+export class DialogService {
+  private dialog = inject(MatDialog);
+
+  async confirm(data: ConfirmDialogData | string): Promise<boolean> {
+    const dialogData: ConfirmDialogData = typeof data === 'string' ? { message: data } : data;
+    const ref = this.dialog.open(ConfirmDialog, { data: dialogData, width: '420px', role: 'alertdialog' });
+    const result = await firstValueFrom(ref.afterClosed());
+    return Boolean(result);
+  }
+
+  async prompt(data: PromptDialogData | string): Promise<string | null> {
+    const dialogData: PromptDialogData = typeof data === 'string' ? { message: data, required: true } : data;
+    const ref = this.dialog.open(PromptDialog, { data: dialogData, width: '460px' });
+    const result = await firstValueFrom(ref.afterClosed());
+    return result || null;
+  }
+}
+
+let activeAudio: HTMLAudioElement | null = null;
+
 /** Read-aloud button (Cloud Text-to-Speech through the API). */
 @Component({
   selector: 'cb-speak',
@@ -129,14 +219,27 @@ export class SpeakButton {
   private notify = inject(Notify);
   busy = signal(false);
   async play() {
+    if (activeAudio) {
+      activeAudio.pause();
+      activeAudio = null;
+    }
     this.busy.set(true);
     try {
       const r = await this.api.post<{ audioBase64: string; mimeType: string }>('/assistant/speak', { text: this.text(), language: this.i18n.lang() });
-      await new Audio(`data:${r.mimeType};base64,${r.audioBase64}`).play();
+      const audio = new Audio(`data:${r.mimeType};base64,${r.audioBase64}`);
+      activeAudio = audio;
+      audio.onended = () => {
+        if (activeAudio === audio) activeAudio = null;
+        this.busy.set(false);
+      };
+      audio.onerror = () => {
+        if (activeAudio === audio) activeAudio = null;
+        this.busy.set(false);
+      };
+      await audio.play();
     } catch (e) {
-      this.notify.error(e);
-    } finally {
       this.busy.set(false);
+      this.notify.error(e);
     }
   }
 }
