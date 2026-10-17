@@ -25,7 +25,7 @@ const LangSwitch = () => {
   standalone: true,
   imports: [RouterLink, MatButtonModule, MatIconModule, MatCardModule, TPipe],
   template: ` <header class="public-top">
-      <span class="brand"><mat-icon aria-hidden="true">eco</mat-icon> ComplyBridge AI</span>
+      <span class="brand"><img src="/Logo.png" alt="Ecuraa" class="brand-logo" /></span>
       <span class="spacer"></span>
       @for (l of languages; track l.code) {
         <button mat-button (click)="i18n.use(l.code)">{{ l.label }}</button>
@@ -35,6 +35,9 @@ const LangSwitch = () => {
     </header>
     <main class="landing" id="main">
       <section class="hero">
+        <div class="hero-logo-wrap">
+          <img src="/Logo.png" alt="Ecuraa" class="hero-logo" />
+        </div>
         <h1>{{ 'landing.tagline' | t }}</h1>
         <p class="lead">{{ 'landing.lead' | t }}</p>
         <a mat-flat-button routerLink="/register" class="big">{{ 'auth.getStarted' | t }}</a>
@@ -103,6 +106,9 @@ export class Landing {
   template: ` <main class="auth-page" id="main">
     <mat-card appearance="outlined" class="auth-card"
       ><mat-card-content>
+        <div class="auth-brand">
+          <a routerLink="/"><img src="/Logo.png" alt="Ecuraa" class="brand-logo-auth" /></a>
+        </div>
         <h1>{{ 'auth.login' | t }}</h1>
         <form [formGroup]="form" (ngSubmit)="submit()">
           <mat-form-field appearance="outline"
@@ -173,6 +179,9 @@ export class Login {
   template: ` <main class="auth-page" id="main">
     <mat-card appearance="outlined" class="auth-card"
       ><mat-card-content>
+        <div class="auth-brand">
+          <a routerLink="/"><img src="/Logo.png" alt="Ecuraa" class="brand-logo-auth" /></a>
+        </div>
         <h1>{{ 'auth.createAccount' | t }}</h1>
         <form [formGroup]="form" (ngSubmit)="submit()">
           <mat-form-field appearance="outline"
@@ -250,6 +259,9 @@ export class Register {
   template: ` <main class="auth-page" id="main">
     <mat-card appearance="outlined" class="auth-card"
       ><mat-card-content>
+        <div class="auth-brand">
+          <a routerLink="/"><img src="/Logo.png" alt="Ecuraa" class="brand-logo-auth" /></a>
+        </div>
         <h1>{{ 'auth.forgot' | t }}</h1>
         <mat-form-field appearance="outline"
           ><mat-label>{{ 'auth.email' | t }}</mat-label
@@ -299,6 +311,9 @@ export class ResetPassword {
   template: ` <main class="auth-page" id="main">
     <mat-card appearance="outlined" class="auth-card wide"
       ><mat-card-content>
+        <div class="auth-brand">
+          <img src="/Logo.png" alt="Ecuraa" class="brand-logo-auth" />
+        </div>
         <h1>{{ 'onboarding.title' | t }}</h1>
         <p class="muted">{{ 'onboarding.intro' | t }}</p>
         @if (auth.user() && !auth.user()?.emailVerified) {
@@ -457,6 +472,9 @@ export class Onboarding {
   template: ` <main class="auth-page" id="main">
     <mat-card appearance="outlined" class="auth-card"
       ><mat-card-content>
+        <div class="auth-brand">
+          <a routerLink="/"><img src="/Logo.png" alt="Ecuraa" class="brand-logo-auth" /></a>
+        </div>
         @if (info(); as i) {
           <h1>{{ 'invite.title' | t: { org: i.organizationName } }}</h1>
           <p>
@@ -580,7 +598,7 @@ interface SharedView {
     StatusChip,
   ],
   template: ` <header class="public-top">
-      <span class="brand"><mat-icon>eco</mat-icon> ComplyBridge AI · {{ 'buyer.portal' | t }}</span>
+      <span class="brand"><img src="/Logo.png" alt="Ecuraa" class="brand-logo" /> · {{ 'buyer.portal' | t }}</span>
     </header>
     <main class="page" id="main">
       @if (error()) {

@@ -47,7 +47,7 @@ const NAV: NavItem[] = [
     <a class="skip-link" href="#main">{{ 'common.skip' | t }}</a>
     <mat-sidenav-container class="shell">
       <mat-sidenav #nav [mode]="mobile() ? 'over' : 'side'" [opened]="!mobile()" class="side">
-        <div class="brand"><mat-icon aria-hidden="true">eco</mat-icon><span>ComplyBridge AI</span></div>
+        <div class="brand"><img src="/Logo.png" alt="Ecuraa" class="brand-logo" /></div>
         <nav [attr.aria-label]="'nav.main' | t">
           <mat-nav-list>
             @for (item of items(); track item.path) {

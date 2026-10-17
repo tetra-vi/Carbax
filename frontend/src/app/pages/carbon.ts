@@ -353,7 +353,7 @@ export class CompliancePage {
     try { await this.api.post('/reports/generate', { periodId: this.s.periodId() }); this.notify.ok('compliance.generated'); await this.load(); } catch (e) { this.notify.error(e); } finally { this.busy.set(false); }
   }
   download(r: Report, f: string) {
-    void this.api.download(`/reports/${r.id}/download`, `complybridge-${r.periodKey}-v${r.version}.${f}`, { format: f }).catch((e) => this.notify.error(e));
+    void this.api.download(`/reports/${r.id}/download`, `ecuraa-${r.periodKey}-v${r.version}.${f}`, { format: f }).catch((e) => this.notify.error(e));
   }
   async review(r: Report, d: 'approve' | 'reject') {
     try {

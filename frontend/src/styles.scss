@@ -43,7 +43,8 @@ code { font-size: .85em; background: #eef2f2; padding: 1px 4px; border-radius: 4
 /* Layout */
 .shell { height: 100vh; }
 .side { width: 248px; border-right: 1px solid var(--cb-border); }
-.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--cb-accent); padding: 18px 16px; font-size: 1.1rem; }
+.brand { display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--cb-accent); padding: 18px 16px; font-size: 1.1rem; text-decoration: none; }
+.brand-logo { height: 38px; max-width: 180px; width: auto; object-fit: contain; display: block; }
 .topbar { background: #fff; border-bottom: 1px solid var(--cb-border); position: sticky; top: 0; z-index: 5; gap: 6px; }
 .topbar .org { font-weight: 600; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .role-chip { font-size: .75rem; background: var(--cb-accent-soft); color: var(--cb-accent); padding: 2px 8px; border-radius: 12px; }
@@ -153,10 +154,14 @@ code { font-size: .85em; background: #eef2f2; padding: 1px 4px; border-radius: 4
 .public-top .brand { padding: 0; }
 .landing { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
 .hero { text-align: center; padding: 40px 0 30px; }
+.hero-logo-wrap { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+.hero-logo { height: 60px; max-width: 260px; width: auto; object-fit: contain; display: block; }
 .hero h1 { font-size: 2.2rem; color: var(--cb-accent); }
 .big { min-height: 52px; font-size: 1.1rem !important; padding: 0 28px !important; }
 .feature-icon { color: var(--cb-accent); font-size: 36px; width: 36px; height: 36px; }
 .auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.auth-brand { display: flex; justify-content: center; align-items: center; margin-bottom: 16px; }
+.brand-logo-auth { height: 48px; max-width: 220px; width: auto; object-fit: contain; display: block; }
 .auth-card { width: min(440px, 100%); }
 .auth-card.wide { width: min(760px, 100%); }
 .auth-card mat-form-field { width: 100%; }
