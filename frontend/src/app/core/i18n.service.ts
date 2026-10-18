@@ -4,6 +4,7 @@ import type { Lang } from './models';
 export const UI_LANGUAGES: { code: Lang; label: string; available: boolean }[] = [
   { code: 'en', label: 'English', available: true },
   { code: 'ta', label: 'தமிழ் (Tamil)', available: true },
+  { code: 'fr', label: 'Français (French)', available: true },
   { code: 'si', label: 'සිංහල (Sinhala) - coming soon', available: false },
   { code: 'hi', label: 'हिन्दी (Hindi) - planned', available: false },
   { code: 'id', label: 'Bahasa Indonesia - planned', available: false },

@@ -1,4 +1,4 @@
-# ComplyBridge AI frontend (Angular 20 + Angular Material)
+# Ecuraa frontend (Angular 20 + Angular Material)
 
 - `npm install && npx ng build` produces `dist/frontend/browser` for Firebase Hosting.
 - Put your Firebase web app config in `src/app/core/environment.ts`.

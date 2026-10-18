@@ -10,7 +10,7 @@ async function main() {
   const allowedOrigins = (process.env.ALLOWED_ORIGINS ?? config.publicAppUrl).split(',').map((s) => s.trim()).filter(Boolean);
   const app = createApp(deps, { allowedOrigins });
   const port = Number(process.env.PORT ?? 8080);
-  app.listen(port, () => console.log(JSON.stringify({ severity: 'INFO', message: `ComplyBridge API listening on ${port}`, env: config.env })));
+  app.listen(port, () => console.log(JSON.stringify({ severity: 'INFO', message: `Ecuraa API listening on ${port}`, env: config.env })));
 }
 
 main().catch((e) => {

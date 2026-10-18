@@ -22,21 +22,41 @@ import { VoiceMate } from './voicemate.component';
 
 interface NavItem { path: string; icon: string; key: string; roles: Role[] }
 
-const NAV: NavItem[] = [
-  { path: '/dashboard', icon: 'insights', key: 'nav.dashboard', roles: ['OWNER', 'REVIEWER'] },
-  { path: '/guided', icon: 'touch_app', key: 'nav.guided', roles: ['WORKER', 'OWNER'] },
-  { path: '/tasks', icon: 'assignment', key: 'nav.tasks', roles: ['WORKER', 'OWNER'] },
-  { path: '/documents', icon: 'upload_file', key: 'nav.documents', roles: ['OWNER', 'WORKER', 'REVIEWER'] },
-  { path: '/carbonops', icon: 'smart_toy', key: 'nav.carbonops', roles: ['OWNER', 'REVIEWER'] },
-  { path: '/results', icon: 'calculate', key: 'nav.results', roles: ['OWNER', 'REVIEWER'] },
-  { path: '/twin', icon: 'tune', key: 'nav.twin', roles: ['OWNER', 'REVIEWER'] },
-  { path: '/actions', icon: 'flag', key: 'nav.actions', roles: ['OWNER', 'WORKER'] },
-  { path: '/compliance', icon: 'verified', key: 'nav.compliance', roles: ['OWNER', 'REVIEWER'] },
-  { path: '/facilities', icon: 'factory', key: 'nav.facilities', roles: ['OWNER'] },
-  { path: '/team', icon: 'group', key: 'nav.team', roles: ['OWNER'] },
-  { path: '/subscription', icon: 'workspace_premium', key: 'nav.subscription', roles: ['OWNER'] },
-  { path: '/audit', icon: 'history', key: 'nav.audit', roles: ['OWNER', 'REVIEWER'] },
-  { path: '/settings', icon: 'settings', key: 'nav.settings', roles: ['OWNER', 'WORKER', 'REVIEWER'] },
+interface NavGroup {
+  titleKey: string;
+  items: NavItem[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    titleKey: 'nav.catOperations',
+    items: [
+      { path: '/dashboard', icon: 'insights', key: 'nav.dashboard', roles: ['OWNER', 'REVIEWER'] },
+      { path: '/guided', icon: 'touch_app', key: 'nav.guided', roles: ['WORKER', 'OWNER'] },
+      { path: '/tasks', icon: 'assignment', key: 'nav.tasks', roles: ['WORKER', 'OWNER'] },
+      { path: '/documents', icon: 'upload_file', key: 'nav.documents', roles: ['OWNER', 'WORKER', 'REVIEWER'] },
+      { path: '/actions', icon: 'flag', key: 'nav.actions', roles: ['OWNER', 'WORKER'] },
+    ],
+  },
+  {
+    titleKey: 'nav.catIntelligence',
+    items: [
+      { path: '/carbonops', icon: 'smart_toy', key: 'nav.carbonops', roles: ['OWNER', 'REVIEWER'] },
+      { path: '/results', icon: 'calculate', key: 'nav.results', roles: ['OWNER', 'REVIEWER'] },
+      { path: '/twin', icon: 'tune', key: 'nav.twin', roles: ['OWNER', 'REVIEWER'] },
+      { path: '/compliance', icon: 'verified', key: 'nav.compliance', roles: ['OWNER', 'REVIEWER'] },
+    ],
+  },
+  {
+    titleKey: 'nav.catManagement',
+    items: [
+      { path: '/facilities', icon: 'factory', key: 'nav.facilities', roles: ['OWNER'] },
+      { path: '/team', icon: 'group', key: 'nav.team', roles: ['OWNER'] },
+      { path: '/subscription', icon: 'workspace_premium', key: 'nav.subscription', roles: ['OWNER'] },
+      { path: '/audit', icon: 'history', key: 'nav.audit', roles: ['OWNER', 'REVIEWER'] },
+      { path: '/settings', icon: 'settings', key: 'nav.settings', roles: ['OWNER', 'WORKER', 'REVIEWER'] },
+    ],
+  },
 ];
 
 @Component({
@@ -47,22 +67,26 @@ const NAV: NavItem[] = [
     <a class="skip-link" href="#main">{{ 'common.skip' | t }}</a>
     <mat-sidenav-container class="shell">
       <mat-sidenav #nav [mode]="mobile() ? 'over' : 'side'" [opened]="!mobile()" class="side">
-        <div class="brand"><mat-icon aria-hidden="true">eco</mat-icon><span>ComplyBridge AI</span></div>
+        <a routerLink="/dashboard" class="brand" aria-label="Ecuraa"><img src="/logo.png" alt="Ecuraa" class="brand-logo" /></a>
         <nav [attr.aria-label]="'nav.main' | t">
           <mat-nav-list>
-            @for (item of items(); track item.path) {
-              <a mat-list-item [routerLink]="item.path" routerLinkActive="active" (click)="mobile() && nav.close()">
-                <mat-icon matListItemIcon aria-hidden="true">{{ item.icon }}</mat-icon>
-                <span matListItemTitle>{{ item.key | t }}</span>
-              </a>
+            @for (sec of sections(); track sec.titleKey) {
+              <div class="nav-section-title">{{ sec.titleKey | t }}</div>
+              @for (item of sec.items; track item.path) {
+                <a mat-list-item [routerLink]="item.path" routerLinkActive="active" (click)="mobile() && nav.close()">
+                  <mat-icon matListItemIcon aria-hidden="true">{{ item.icon }}</mat-icon>
+                  <span matListItemTitle>{{ item.key | t }}</span>
+                </a>
+              }
             }
             @if (s.me()?.isSuperAdmin) {
-              <a mat-list-item routerLink="/admin" routerLinkActive="active"><mat-icon matListItemIcon>admin_panel_settings</mat-icon><span matListItemTitle>{{ 'nav.admin' | t }}</span></a>
+              <div class="nav-section-title">Admin</div>
+              <a mat-list-item routerLink="/admin" routerLinkActive="active" (click)="mobile() && nav.close()"><mat-icon matListItemIcon>admin_panel_settings</mat-icon><span matListItemTitle>{{ 'nav.admin' | t }}</span></a>
             }
           </mat-nav-list>
         </nav>
       </mat-sidenav>
-      <mat-sidenav #assistant position="end" mode="over" class="assistant-panel"><cb-voicemate /></mat-sidenav>
+      <mat-sidenav #assistant position="end" mode="over" class="assistant-panel"><cb-voicemate (close)="assistant.close()" /></mat-sidenav>
       <mat-sidenav-content>
         <mat-toolbar class="topbar">
           @if (mobile()) { <button mat-icon-button (click)="nav.toggle()" [attr.aria-label]="'nav.menu' | t"><mat-icon>menu</mat-icon></button> }
@@ -107,7 +131,14 @@ export class Shell {
   private i18n = inject(I18n);
   languages = UI_LANGUAGES;
   mobile = toSignal(inject(BreakpointObserver).observe('(max-width: 900px)').pipe(map((r) => r.matches)), { initialValue: false });
-  items = computed(() => NAV.filter((i) => this.s.role() && i.roles.includes(this.s.role()!)));
+  sections = computed(() => {
+    const role = this.s.role();
+    if (!role) return [];
+    return NAV_GROUPS.map((g) => ({
+      titleKey: g.titleKey,
+      items: g.items.filter((i) => i.roles.includes(role)),
+    })).filter((g) => g.items.length > 0);
+  });
   notifications = signal<Notification[]>([]);
   unread = computed(() => this.notifications().filter((n) => !n.read).length);
   currentLangLabel = computed(() => UI_LANGUAGES.find((l) => l.code === this.i18n.lang())?.label.split(' ')[0] ?? 'EN');

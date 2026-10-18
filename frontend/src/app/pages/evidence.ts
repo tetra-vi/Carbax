@@ -15,7 +15,7 @@ import { Api } from '../core/api.service';
 import { I18n, TPipe } from '../core/i18n.service';
 import { Session } from '../core/session.service';
 import type { DocumentRecord, Extraction, Issue, Member, MeasurementType, Task } from '../core/models';
-import { Notify, PeriodPicker, SpeakButton, StatusChip } from '../shared/ui';
+import { Notify, DialogService, PeriodPicker, SpeakButton, StatusChip } from '../shared/ui';
 
 const DOC_TYPES = ['ELECTRICITY_BILL', 'FUEL_RECEIPT', 'PRODUCTION_RECORD', 'METER_READING', 'OTHER'];
 const ACCEPT = 'application/pdf,image/jpeg,image/png,.csv,.xlsx';
@@ -174,12 +174,15 @@ interface EditItem { index: number; include: boolean; measurementType: Measureme
                 </div>
                 <div class="form-grid">
                   <mat-form-field appearance="outline"><mat-label>{{ 'review.type' | t }}</mat-label>
-                    <mat-select [(ngModel)]="it.measurementType">@for (t of mtypes; track t) { <mat-option [value]="t">{{ ('mtype.' + t) | t }}</mat-option> }</mat-select></mat-form-field>
+                    <mat-select [(ngModel)]="it.measurementType" (ngModelChange)="onTypeChange(it)">@for (t of mtypes; track t) { <mat-option [value]="t">{{ ('mtype.' + t) | t }}</mat-option> }</mat-select></mat-form-field>
                   <mat-form-field appearance="outline"><mat-label>{{ 'review.month' | t }}</mat-label><input matInput type="month" [(ngModel)]="it.reportingMonth" /></mat-form-field>
                   <mat-form-field appearance="outline"><mat-label>{{ 'review.quantity' | t }}</mat-label><input matInput type="number" [(ngModel)]="it.quantity" />
                     @if (it.aiQuantity !== it.quantity) { <mat-hint>{{ 'review.aiRead' | t }}: {{ it.aiQuantity ?? '–' }}</mat-hint> }</mat-form-field>
                   <mat-form-field appearance="outline"><mat-label>{{ 'review.unit' | t }}</mat-label>
                     <mat-select [(ngModel)]="it.unit">@for (u of unitsFor(it.measurementType); track u) { <mat-option [value]="u">{{ u }}</mat-option> }</mat-select></mat-form-field>
+                  @if (it.measurementType === 'FUEL') {
+                    <mat-form-field appearance="outline" class="span2"><mat-label>{{ 'review.fuelType' | t }}</mat-label><input matInput [(ngModel)]="it.fuelType" placeholder="diesel" /></mat-form-field>
+                  }
                 </div>
                 @if (it.sourceSnippet) { <p class="small source"><mat-icon aria-hidden="true">format_quote</mat-icon> {{ it.sourceSnippet }}</p> }
               </mat-card-content></mat-card>
@@ -205,6 +208,7 @@ export class ReviewExtractionPage implements OnInit, OnDestroy {
   private notify = inject(Notify);
   private i18n = inject(I18n);
   private router = inject(Router);
+  private dialogs = inject(DialogService);
   mtypes: MeasurementType[] = ['ELECTRICITY', 'FUEL', 'PRODUCTION'];
   doc = signal<DocumentRecord & { contentType: string } | null>(null);
   ext = signal<Extraction | null>(null);
@@ -213,6 +217,18 @@ export class ReviewExtractionPage implements OnInit, OnDestroy {
   items: EditItem[] = [];
   busy = signal(false);
   result = signal<string | null>(null);
+
+  onTypeChange(it: EditItem) {
+    const valid = this.unitsFor(it.measurementType);
+    if (!valid.includes(it.unit)) {
+      it.unit = valid[0];
+    }
+    if (it.measurementType === 'FUEL' && !it.fuelType) {
+      it.fuelType = 'diesel';
+    } else if (it.measurementType !== 'FUEL') {
+      it.fuelType = null;
+    }
+  }
 
   async ngOnInit() {
     try {
@@ -257,7 +273,11 @@ export class ReviewExtractionPage implements OnInit, OnDestroy {
     }
   }
   async reject() {
-    const reason = prompt(this.i18n.t('review.rejectReason'));
+    const reason = await this.dialogs.prompt({
+      title: this.i18n.t('review.reject'),
+      message: this.i18n.t('review.rejectReason'),
+      required: true,
+    });
     if (!reason) return;
     try {
       await this.api.post(`/extractions/${this.ext()!.id}/reject`, { reason });
@@ -278,9 +298,12 @@ interface AgentRun { id: string; status: string; startedAt: string; finalMessage
     <div class="page-head"><h1>{{ 'carbonops.title' | t }}</h1><cb-period-picker /></div>
     <p class="muted">{{ 'carbonops.intro' | t }}</p>
     <div class="row">
-      <button mat-stroked-button (click)="analyze()" [disabled]="busy()"><mat-icon>rule</mat-icon> {{ 'carbonops.analyze' | t }}</button>
-      @if (s.role() === 'OWNER' || s.role() === 'REVIEWER') { <button mat-flat-button (click)="runAgent()" [disabled]="busy()"><mat-icon>smart_toy</mat-icon> {{ 'carbonops.run' | t }}</button> }
+      <button mat-stroked-button (click)="analyze()" [disabled]="busy() || !s.periodId()"><mat-icon>rule</mat-icon> {{ 'carbonops.analyze' | t }}</button>
+      @if (s.role() === 'OWNER' || s.role() === 'REVIEWER') { <button mat-flat-button (click)="runAgent()" [disabled]="busy() || !s.periodId()"><mat-icon>smart_toy</mat-icon> {{ 'carbonops.run' | t }}</button> }
     </div>
+    @if (!s.periodId()) {
+      <p class="notice warn"><mat-icon aria-hidden="true">info</mat-icon> {{ 'documents.choosePeriod' | t }}</p>
+    }
     @if (busy()) { <mat-progress-bar mode="indeterminate" /> }
     <div class="two-col">
       <mat-card appearance="outlined"><mat-card-content>
@@ -331,6 +354,7 @@ export class CarbonOpsPage {
   private api = inject(Api);
   private notify = inject(Notify);
   private i18n = inject(I18n);
+  private dialogs = inject(DialogService);
   issues = signal<Issue[]>([]);
   tasks = signal<Task[]>([]);
   runs = signal<AgentRun[]>([]);
@@ -372,10 +396,12 @@ export class CarbonOpsPage {
     return r.toolActions.map((a) => `${a.ok ? '✓' : '✗'} ${a.tool}`).join(' · ');
   }
   async analyze() {
+    if (!this.s.periodId()) return;
     this.busy.set(true);
     try { await this.api.post(`/reporting-periods/${this.s.periodId()}/analyze`); await this.load(); await this.s.loadPeriods(); } catch (e) { this.notify.error(e); } finally { this.busy.set(false); }
   }
   async runAgent() {
+    if (!this.s.periodId()) return;
     this.busy.set(true);
     try {
       await this.api.post('/carbonops/run', { periodId: this.s.periodId() });
@@ -401,7 +427,11 @@ export class CarbonOpsPage {
     }
   }
   async decline(t: Task) {
-    const reason = prompt(this.i18n.t('carbonops.declineReason'));
+    const reason = await this.dialogs.prompt({
+      title: this.i18n.t('carbonops.decline'),
+      message: this.i18n.t('carbonops.declineReason'),
+      required: true,
+    });
     if (!reason) return;
     try { await this.api.post(`/tasks/${t.id}/decline`, { reason }); await this.load(); } catch (e) { this.notify.error(e); }
   }

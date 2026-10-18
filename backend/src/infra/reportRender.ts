@@ -33,7 +33,7 @@ function latin(s: string | null | undefined): string {
 
 export function renderPdf(m: ReportModel): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: 'A4', margin: 50, info: { Title: `ComplyBridge evidence package ${m.report.periodKey} v${m.report.version}`, Author: 'ComplyBridge AI' } });
+    const doc = new PDFDocument({ size: 'A4', margin: 50, info: { Title: `Ecuraa evidence package ${m.report.periodKey} v${m.report.version}`, Author: 'Ecuraa' } });
     const chunks: Buffer[] = [];
     doc.on('data', (c) => chunks.push(c));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
@@ -44,7 +44,7 @@ export function renderPdf(m: ReportModel): Promise<Buffer> {
     const kv = (k: string, v: string) => doc.font('Helvetica-Bold').text(`${k}: `, { continued: true }).font('Helvetica').text(latin(v));
 
     doc.font('Helvetica-Bold').fontSize(18).fillColor('#0f5132').text('Carbon Evidence Package');
-    doc.font('Helvetica').fontSize(10).fillColor('#444').text('Prepared with ComplyBridge AI. Internal evidence for buyer review; not a certification.');
+    doc.font('Helvetica').fontSize(10).fillColor('#444').text('Prepared with Ecuraa. Internal evidence for buyer review; not a certification.');
     doc.moveDown(0.3).fontSize(11).fillColor(approved ? '#0f5132' : '#b45309').font('Helvetica-Bold')
       .text(approved ? 'STATUS: INTERNALLY APPROVED FOR SHARING' : 'STATUS: DRAFT - NOT APPROVED');
     doc.fillColor('#000').font('Helvetica').fontSize(10);
@@ -149,7 +149,7 @@ export function renderCsv(m: ReportModel): Buffer {
 
 export async function renderXlsx(m: ReportModel): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'ComplyBridge AI';
+  wb.creator = 'Ecuraa';
   const s = wb.addWorksheet('Summary');
   s.addRows([
     ['Organization', m.organization.name],

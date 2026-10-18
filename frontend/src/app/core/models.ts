@@ -1,5 +1,5 @@
 export type Role = 'OWNER' | 'WORKER' | 'REVIEWER' | 'BUYER';
-export type Lang = 'en' | 'ta' | 'si' | 'hi' | 'id' | 'vi' | 'th' | 'ms';
+export type Lang = 'en' | 'ta' | 'fr' | 'si' | 'hi' | 'id' | 'vi' | 'th' | 'ms';
 export type MeasurementType = 'ELECTRICITY' | 'FUEL' | 'PRODUCTION';
 
 export interface Organization { id: string; name: string; country: string; industry: string; plan: string; trialEndsAt?: string; contactEmail: string; preferredLanguage: Lang; status: string; registrationNumber?: string; address?: string; phone?: string }
