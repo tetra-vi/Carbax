@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, input, signal } from '@angular/core';
+import { Component, OnInit, inject, input, signal, computed } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Api } from '../core/api.service';
 import { AuthService } from '../core/auth.service';
@@ -23,13 +24,25 @@ const LangSwitch = () => {
 @Component({
   selector: 'cb-landing',
   standalone: true,
-  imports: [RouterLink, MatButtonModule, MatIconModule, MatCardModule, TPipe],
+  imports: [RouterLink, MatButtonModule, MatIconModule, MatCardModule, MatMenuModule, TPipe],
   template: ` <header class="public-top">
       <a routerLink="/" class="brand" aria-label="Ecuraa"><img src="/logo.png" alt="Ecuraa" class="brand-logo" /></a>
       <span class="spacer"></span>
-      @for (l of languages; track l.code) {
-        <button mat-button (click)="i18n.use(l.code)">{{ l.label }}</button>
-      }
+      <button mat-button [matMenuTriggerFor]="langMenu" class="lang-dropdown-btn" [attr.aria-label]="'common.language' | t">
+        <mat-icon class="lang-icon">translate</mat-icon>
+        <span>{{ currentLangLabel() }}</span>
+        <mat-icon class="dropdown-arrow">arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #langMenu="matMenu">
+        @for (l of languages; track l.code) {
+          <button mat-menu-item (click)="i18n.use(l.code)" [class.active-lang]="i18n.lang() === l.code">
+            <span>{{ l.label }}</span>
+            @if (i18n.lang() === l.code) {
+              <mat-icon class="active-check">check</mat-icon>
+            }
+          </button>
+        }
+      </mat-menu>
       <a mat-button routerLink="/login">{{ 'auth.login' | t }}</a>
       <a mat-flat-button routerLink="/register">{{ 'auth.getStarted' | t }}</a>
     </header>
@@ -37,8 +50,13 @@ const LangSwitch = () => {
       <section class="hero">
         <h1>{{ 'landing.tagline' | t }}</h1>
         <p class="lead">{{ 'landing.lead' | t }}</p>
-        <a mat-flat-button routerLink="/register" class="big">{{ 'auth.getStarted' | t }}</a>
-        <p class="muted small">{{ 'landing.disclaimer' | t }}</p>
+        <div class="hero-actions">
+          <a mat-flat-button routerLink="/register" class="big">{{ 'auth.getStarted' | t }}</a>
+        </div>
+        <p class="muted small hero-disclaimer">{{ 'landing.disclaimer' | t }}</p>
+        <div class="hero-banner-wrap">
+          <img src="/banner.png" alt="Ecuraa - From Everyday Bills To Carbon Intelligence: Capture, Calculate, Comply, Improve" class="hero-banner-img" />
+        </div>
       </section>
       <section class="grid3" aria-label="Features">
         @for (f of features; track f.key) {
@@ -70,7 +88,8 @@ const LangSwitch = () => {
 })
 export class Landing {
   i18n = inject(I18n);
-  languages = LangSwitch().languages;
+  languages = UI_LANGUAGES.filter((l) => l.available);
+  currentLangLabel = computed(() => this.languages.find((l) => l.code === this.i18n.lang())?.label.split(' ')[0] ?? 'English');
   features = [
     { key: 'landing.f1', icon: 'photo_camera' },
     { key: 'landing.f2', icon: 'smart_toy' },

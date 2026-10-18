@@ -1,15 +1,15 @@
-# ComplyBridge AI 3.0 — Comprehensive UI/UX Audit Report
+# Ecuraa AI 3.0 — Comprehensive UI/UX Audit Report
 
 **Date:** 2026-10-17  
 **Auditor:** Principal Frontend Engineer, Senior UI/UX Designer & QA Automation Specialist  
-**Application:** ComplyBridge AI 3.0 (Angular 20, Angular Material, Firebase Auth, Google Cloud Vertex AI / Cloud Run)  
+**Application:** Ecuraa AI 3.0 (Angular 20, Angular Material, Firebase Auth, Google Cloud Vertex AI / Cloud Run)  
 **Status:** Audit Complete — Ready for Batch Execution  
 
 ---
 
 ## Executive Summary
 
-ComplyBridge AI 3.0 is a robust, well-architected carbon compliance platform with enterprise-grade business rules, deterministic emission calculations, and genuine AI workflows (Document AI, Vertex AI Gemini, Google Cloud Translation, and Speech/TTS).
+Ecuraa AI 3.0 is a robust, well-architected carbon compliance platform with enterprise-grade business rules, deterministic emission calculations, and genuine AI workflows (Document AI, Vertex AI Gemini, Google Cloud Translation, and Speech/TTS).
 
 The audit examined every route, layout component, shared component, stylesheet, and user journey across desktop, tablet, and mobile viewport widths. While the backend contracts and core calculation logic are solid, the frontend exhibits visual inconsistencies, functional bugs (including template pipe precedence errors that broke translations), responsive layout traps on mobile devices, inaccessible browser popups (`alert`/`prompt`/`confirm`), missing validation states, and incomplete empty/loading states.
 

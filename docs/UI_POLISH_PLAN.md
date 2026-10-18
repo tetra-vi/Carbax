@@ -1,9 +1,9 @@
-# ComplyBridge AI 3.0 — UI Polish & Implementation Plan
+# Ecuraa AI 3.0 — UI Polish & Implementation Plan
 
 **Date:** 2026-10-17  
 **Plan Version:** 1.0.0  
 **Target Architecture:** Angular 20 + Angular Material + Firebase Auth + Vertex AI  
-**Goal:** Transform ComplyBridge AI 3.0 into a visually consistent, internationally competitive, stable B2B SaaS platform.
+**Goal:** Transform Ecuraa AI 3.0 into a visually consistent, internationally competitive, stable B2B SaaS platform.
 
 ---
 

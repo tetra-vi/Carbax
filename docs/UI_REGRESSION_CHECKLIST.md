@@ -1,4 +1,4 @@
-# ComplyBridge AI 3.0 — UI Regression Checklist
+# Ecuraa AI 3.0 — UI Regression Checklist
 
 **Execution Date:** 2026-10-17  
 **Test Scope:** Frontend Routes, Authentication, Permissions, Multi-tenant Isolation, Forms, Responsiveness, Localization

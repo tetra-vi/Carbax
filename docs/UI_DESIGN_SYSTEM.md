@@ -1,8 +1,8 @@
-# ComplyBridge AI 3.0 — UI Design System & Component Guidelines
+# Ecuraa AI 3.0 — UI Design System & Component Guidelines
 
 ## 1. Visual Philosophy
 
-ComplyBridge AI 3.0 is designed as an **enterprise-grade B2B Carbon Compliance & Intelligence platform** tailored for manufacturers, plant managers, sustainability directors, and European buyers.
+Ecuraa AI 3.0 is designed as an **enterprise-grade B2B Carbon Compliance & Intelligence platform** tailored for manufacturers, plant managers, sustainability directors, and European buyers.
 
 The design emphasizes:
 - **Trust & Precision:** Deterministic data and citations are prioritized over decorative flair.
